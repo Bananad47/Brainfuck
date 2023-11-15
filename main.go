@@ -25,7 +25,7 @@ var indexError = errors.New("array index out of bounds")
 var unknownCommand = errors.New("unknown command")
 
 type Program struct {
-	arr   [30000]int
+	arr   [30000]byte
 	index int
 }
 
@@ -53,18 +53,16 @@ func (p *Program) Previous() error {
 	return nil
 }
 
-func (p *Program) Print(s, e string) error {
-	_, err := fmt.Printf("%s%d %s", s, p.arr[p.index], e)
+func (p *Program) Print() error {
+	_, err := fmt.Printf("%c", p.arr[p.index])
 	return err
 }
 
 func (p *Program) Get() error {
-	var num int
-	_, err := fmt.Scan(&num)
+	_, err := fmt.Scan(&p.arr[p.index])
 	if err != nil {
 		return err
 	}
-	p.arr[p.index] = num
 	return nil
 }
 
@@ -97,7 +95,7 @@ func (p *Program) Run(s, e string, getNextToken func() (byte, bool)) error {
 				return err
 			}
 		case printValue:
-			err := p.Print(s, e)
+			err := p.Print()
 			if err != nil {
 				return err
 			}
@@ -107,8 +105,6 @@ func (p *Program) Run(s, e string, getNextToken func() (byte, bool)) error {
 		case loopEnd:
 			isLoop = false
 			_idx := 0
-
-			fmt.Println(b.String())
 			_str := []byte(b.String())
 			b = strings.Builder{}
 			fn := func() (byte, bool) {
@@ -147,7 +143,7 @@ func Shell() {
 	}
 	for {
 		err := p.Run(">> ", "\n", fn)
-		fmt.Println("Error: ", err)
+		println("Error: ", err)
 	}
 }
 
@@ -174,5 +170,7 @@ func main() {
 	}
 	p := Program{}
 	err := p.Run("", "\n", fn)
-	fmt.Println(err)
+	if err != nil {
+		println("ERROR:", err)
+	}
 }
